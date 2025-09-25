@@ -54,7 +54,9 @@
 
 #if LV_USE_STDLIB_MALLOC == LV_STDLIB_BUILTIN
     /** Size of memory available for `lv_malloc()` in bytes (>= 2kB) */
-    #define LV_MEM_SIZE (64 * 1024U)          /**< [bytes] */
+    // #define LV_MEM_SIZE (1024 * 1024) // if only bmp used
+    // #define LV_MEM_SIZE (3 * 1920 * 1080 * 4) // if png used
+    #define LV_MEM_SIZE (1024 * 1024 + 1920 * 1080 * 3) // if only jpeg used
 
     /** Size of the memory expand for `lv_malloc()` in bytes */
     #define LV_MEM_POOL_EXPAND_SIZE 0
@@ -134,14 +136,12 @@
  * It should be at least `LV_DRAW_LAYER_SIMPLE_BUF_SIZE` sized but if transformed layers are also used
  * it should be enough to store the largest widget too (width x height x 4 area).
  * Set it to 0 to have no limit. */
-/* #define LV_DRAW_LAYER_MAX_MEMORY 0 */  
-/**< No limit by default [bytes]*/
+#define LV_DRAW_LAYER_MAX_MEMORY 0  /**< No limit by default [bytes]*/
 
 /** Stack size of drawing thread.
  * NOTE: If FreeType or ThorVG is enabled, it is recommended to set it to 32KB or more.
  */
-/* #define LV_DRAW_THREAD_STACK_SIZE    (8 * 1024) */
-/**< [bytes]*/
+#define LV_DRAW_THREAD_STACK_SIZE    (32 * 1024)         /**< [bytes]*/
 
 #define LV_USE_DRAW_SW 1
 #if LV_USE_DRAW_SW == 1
@@ -246,6 +246,9 @@
 
     /** Enable VGLite asserts. */
     #define LV_USE_VGLITE_ASSERT 0
+
+    /** Enable VGLite error checks. */
+    #define LV_USE_VGLITE_CHECK_ERROR 0
 #endif
 
 /** Use NXP's PXP on iMX RTxxx platforms. */
@@ -344,7 +347,7 @@
 #ifdef MICROPY_LV_USE_LOG
     #define LV_USE_LOG MICROPY_LV_USE_LOG
 #else
-    #define LV_USE_LOG 0
+    #define LV_USE_LOG 1
 #endif
 
 #if LV_USE_LOG 
@@ -355,7 +358,7 @@
      *  - LV_LOG_LEVEL_ERROR    Log only critical issues, when system may fail.
      *  - LV_LOG_LEVEL_USER     Log only custom log messages added by the user.
      *  - LV_LOG_LEVEL_NONE     Do not log anything. */
-    #define LV_LOG_LEVEL LV_LOG_LEVEL_INFO
+    #define LV_LOG_LEVEL LV_LOG_LEVEL_WARN
 
     /** - 1: Print log with 'printf';
      *  - 0: User needs to register a callback with `lv_log_register_print_cb()`. */
@@ -376,15 +379,15 @@
     #define LV_LOG_USE_FILE_LINE 1
 
     /* Enable/disable LV_LOG_TRACE in modules that produces a huge number of logs. */
-    #define LV_LOG_TRACE_MEM        1   /**< Enable/disable trace logs in memory operations. */
-    #define LV_LOG_TRACE_TIMER      1   /**< Enable/disable trace logs in timer operations. */
-    #define LV_LOG_TRACE_INDEV      1   /**< Enable/disable trace logs in input device operations. */
-    #define LV_LOG_TRACE_DISP_REFR  1   /**< Enable/disable trace logs in display re-draw operations. */
-    #define LV_LOG_TRACE_EVENT      1   /**< Enable/disable trace logs in event dispatch logic. */
-    #define LV_LOG_TRACE_OBJ_CREATE 1   /**< Enable/disable trace logs in object creation (core `obj` creation plus every widget). */
-    #define LV_LOG_TRACE_LAYOUT     1   /**< Enable/disable trace logs in flex- and grid-layout operations. */
-    #define LV_LOG_TRACE_ANIM       1   /**< Enable/disable trace logs in animation logic. */
-    #define LV_LOG_TRACE_CACHE      1   /**< Enable/disable trace logs in cache operations. */
+    #define LV_LOG_TRACE_MEM        0   /**< Enable/disable trace logs in memory operations. */
+    #define LV_LOG_TRACE_TIMER      0   /**< Enable/disable trace logs in timer operations. */
+    #define LV_LOG_TRACE_INDEV      0   /**< Enable/disable trace logs in input device operations. */
+    #define LV_LOG_TRACE_DISP_REFR  0   /**< Enable/disable trace logs in display re-draw operations. */
+    #define LV_LOG_TRACE_EVENT      0   /**< Enable/disable trace logs in event dispatch logic. */
+    #define LV_LOG_TRACE_OBJ_CREATE 0   /**< Enable/disable trace logs in object creation (core `obj` creation plus every widget). */
+    #define LV_LOG_TRACE_LAYOUT     0   /**< Enable/disable trace logs in flex- and grid-layout operations. */
+    #define LV_LOG_TRACE_ANIM       0   /**< Enable/disable trace logs in animation logic. */
+    #define LV_LOG_TRACE_CACHE      0   /**< Enable/disable trace logs in cache operations. */
 #endif  /*LV_USE_LOG*/
 
 /*-------------
@@ -448,7 +451,7 @@ extern void mp_lv_deinit_gc();
 #ifdef MICROPY_CACHE_SIZE
     #define LV_CACHE_DEF_SIZE   MICROPY_CACHE_SIZE
 #else
-    #define LV_CACHE_DEF_SIZE   0
+    #define LV_CACHE_DEF_SIZE       (1920 * 1080 * 3)
 #endif
 
 /** Default number of image header cache entries. The cache is used to store the headers of images
@@ -490,13 +493,13 @@ extern void mp_lv_deinit_gc();
 * - lv_obj_stringify_id:    Return string-ified identifier, e.g. "button3".
 * - lv_obj_free_id:         Does nothing, as there is no memory allocation for the ID.
 * When disabled these functions needs to be implemented by the user.*/
-#define LV_USE_OBJ_ID_BUILTIN   0
+#define LV_USE_OBJ_ID_BUILTIN   1
 
 /** Use obj property set/get API. */
 #define LV_USE_OBJ_PROPERTY 0
 
 /** Enable property name support. */
-#define LV_USE_OBJ_PROPERTY_NAME 0
+#define LV_USE_OBJ_PROPERTY_NAME 1
 
 /* Use VG-Lite Simulator.
  * - Requires: LV_USE_THORVG_INTERNAL or LV_USE_THORVG_EXTERNAL */
@@ -707,7 +710,7 @@ extern void mp_lv_deinit_gc();
  *  - lv_roller_t      :  Options set to "Option 1", "Option 2", "Option 3", "Option 4", "Option 5", else no values are set.
  *  - lv_label_t       :  Text set to "Text", else empty string.
  * */
-#define LV_WIDGETS_HAS_DEFAULT_VALUE  0
+#define LV_WIDGETS_HAS_DEFAULT_VALUE  1
 
 #define LV_USE_ANIMIMG    1
 
@@ -821,10 +824,10 @@ extern void mp_lv_deinit_gc();
 #endif /*LV_USE_THEME_DEFAULT*/
 
 /** A very simple theme that is a good starting point for a custom theme */
-#define LV_USE_THEME_SIMPLE 0
+#define LV_USE_THEME_SIMPLE 1
 
 /** A theme designed for monochrome displays */
-#define LV_USE_THEME_MONO 0
+#define LV_USE_THEME_MONO 1
 
 /*==================
  * LAYOUTS
@@ -847,7 +850,7 @@ extern void mp_lv_deinit_gc();
 /** Setting a default driver letter allows skipping the driver prefix in filepaths.
  *  Documentation about how to use the below driver-identifier letters can be found at
  *  https://docs.lvgl.io/master/details/main-modules/fs.html#lv-fs-identifier-letters . */
-/* #define LV_FS_DEFAULT_DRIVER_LETTER '\0' */
+#define LV_FS_DEFAULT_DRIVER_LETTER '\0'
 
 /** API for fopen, fread, etc. */
 #define LV_USE_FS_STDIO 0
@@ -932,7 +935,7 @@ extern void mp_lv_deinit_gc();
 #define LV_USE_LIBJPEG_TURBO 0
 
 /** GIF decoder library */
-#define LV_USE_GIF 1
+#define LV_USE_GIF 0
 #if LV_USE_GIF
     /** GIF decoder accelerate */
     #define LV_GIF_CACHE_DECODE_DATA 0
@@ -968,10 +971,10 @@ extern void mp_lv_deinit_gc();
 #endif
 
 /** Built-in TTF decoder */
-#define LV_USE_TINY_TTF 0
+#define LV_USE_TINY_TTF 1
 #if LV_USE_TINY_TTF
     /* Enable loading TTF data from files */
-    #define LV_TINY_TTF_FILE_SUPPORT 0
+    #define LV_TINY_TTF_FILE_SUPPORT 1
     #define LV_TINY_TTF_CACHE_GLYPH_CNT 256
 #endif
 
@@ -1027,7 +1030,7 @@ extern void mp_lv_deinit_gc();
 /* Documentation for several of the below items can be found here: https://docs.lvgl.io/master/details/auxiliary-modules/index.html . */
 
 /** 1: Enable API to take snapshot for object */
-#define LV_USE_SNAPSHOT 1
+#define LV_USE_SNAPSHOT 0
 
 /** 1: Enable system monitor component */
 #define LV_USE_SYSMON   0
@@ -1125,7 +1128,7 @@ extern void mp_lv_deinit_gc();
 #define LV_USE_FRAGMENT 0
 
 /** 1: Support using images as font in label or span widgets */
-#define LV_USE_IMGFONT 1
+#define LV_USE_IMGFONT 0
 
 /** 1: Enable an observer pattern implementation */
 #define LV_USE_OBSERVER 1
@@ -1233,8 +1236,8 @@ extern void mp_lv_deinit_gc();
 #if LV_USE_LINUX_FBDEV
     #define LV_LINUX_FBDEV_BSD           0
     #define LV_LINUX_FBDEV_RENDER_MODE   LV_DISPLAY_RENDER_MODE_PARTIAL
-    #define LV_LINUX_FBDEV_BUFFER_COUNT  0
-    #define LV_LINUX_FBDEV_BUFFER_SIZE   60
+    #define LV_LINUX_FBDEV_BUFFER_COUNT  1
+    #define LV_LINUX_FBDEV_BUFFER_SIZE   1080
     #define LV_LINUX_FBDEV_MMAP          1
 #endif
 
