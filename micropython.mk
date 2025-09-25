@@ -4,16 +4,8 @@
 # Update CFLAGS_USERMOD and LDFLAGS_USERMOD for LVGL extenral library,
 # but do that only on the unix port, for unix specific dependencies
 ifeq ($(notdir $(CURDIR)),unix)
-ifneq ($(UNAME_S),Darwin)
 CFLAGS_USERMOD += -DMICROPY_FB=1
-endif
-
-SDL_CFLAGS_USERMOD :=  $(shell pkg-config --silence-errors --cflags sdl2)
-SDL_LDFLAGS_USERMOD := $(shell pkg-config --silence-errors --libs   sdl2)
-ifneq ($(SDL_LDFLAGS_USERMOD),)
-CFLAGS_USERMOD += $(SDL_CFLAGS_USERMOD) -DMICROPY_SDL=1
-LDFLAGS_USERMOD += $(SDL_LDFLAGS_USERMOD)
-endif
+CFLAGS_USERMOD += -D$(CHIP_PLATFORM)
 
 # Avoid including unwanted local headers other than sdl2 
 ifeq ($(UNAME_S),Darwin)

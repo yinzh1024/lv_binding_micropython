@@ -452,6 +452,23 @@ class AdvancedDemoApplication:
         self.disp.set_backlight(100)
         self.touch = xpt2046.Xpt2046(spi=spi, cs=16, rot=xpt2046.XPT2046_INV_LANDSCAPE)
 
+    def init_gui_fb(self):
+        self.event_loop = event_loop()
+        fb_info = {
+            "screen_width": 1024,
+            "screen_height": 600,
+            "fb_width": 1024,
+            "fb_height": 600,
+            "start_pos": {
+                "x": 0,
+                "y": 0,
+            }
+        }
+        self.disp = lv.linux_fbdev_create(fb_info)
+        lv.linux_fbdev_set_file(self.disp, "/dev/fb0")
+        self.type = "FB"
+        print("Running the FB lvgl version")
+
     def init_gui(self):
         self.group = lv.group_create()
         self.group.set_default()
@@ -464,7 +481,7 @@ class AdvancedDemoApplication:
             elif sys.platform == "esp32":
                 self.init_gui_esp32()
             elif sys.platform == "linux":
-                self.init_gui_SDL()
+                self.init_gui_fb()
             elif sys.platform == "stm32":
                 self.init_gui_stm32()
 
@@ -477,6 +494,6 @@ class AdvancedDemoApplication:
 app = AdvancedDemoApplication()
 app.init_gui()
 
-# if __name__ == '__main__':
-#    while True:
-#        pass
+if __name__ == '__main__':
+   while True:
+       pass
